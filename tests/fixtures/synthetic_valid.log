@@ -1,0 +1,5 @@
+2026-10-09T10:00:00Z|/api/snippets|200|42|client-A
+2026-10-09T10:00:01Z|/api/snippets|500|310|client-B
+2026-10-09T10:00:02Z|/api/auth/login|401|18|client-C
+2026-10-09T10:00:03Z|/api/snippets/42|200|95|client-D
+2026-10-09T10:00:04Z|/api/health|503|1200|client-E

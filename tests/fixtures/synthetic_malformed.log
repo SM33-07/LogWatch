@@ -1,0 +1,9 @@
+2026-10-09T10:00:00Z|/api/snippets|200|42|client-A
+2026-10-09T10:00:00Z|/api/snippets|200
+2026-10-09T10:00:01Z|/api/snippets|500|310|client-B
+2026-10-09T10:00:00Z|/api/snippets|200|42|c-1|extra
+2026-10-09T10:00:00Z|/api/snippets|STATUS_OK|42|c-1
+2026-10-09T10:00:02Z|/api/auth/login|401|18|client-C
+2026-10-09T10:00:00Z|/api/snippets|700|42|c-1
+2026-10-09T10:00:00Z|/api/snippets|200|-15|c-1
+2026-10-09T10:00:00Z|api/snippets|200|42|c-1

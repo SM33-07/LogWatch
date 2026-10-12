@@ -1,0 +1,5 @@
+2026-10-09T10:00:00Z|/api/snippets|200|100|client-A
+2026-10-09T10:00:01Z|/api/snippets|200|100|client-B
+2026-10-09T10:00:02Z|/api/users|200|200|client-C
+2026-10-09T10:00:03Z|/api/snippets|200|100|client-D
+2026-10-09T10:00:04Z|/api/users|200|200|client-E
