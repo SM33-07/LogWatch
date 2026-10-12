@@ -44,6 +44,13 @@ if /i "%TARGET%"=="test" (
         exit /b 1
     )
 
+    echo [BUILD] Compiling dynamic array test runner...
+    gcc %CFLAGS% tests\test_array_store.c src\log_entry.c src\log_array.c src\parser.c -o bin\test_array_store.exe
+    if !ERRORLEVEL! neq 0 (
+        echo [ERROR] Dynamic array test compilation failed.
+        exit /b 1
+    )
+
     echo [RUN] Executing smoke test runner...
     bin\test_dummy.exe
     if !ERRORLEVEL! neq 0 (
@@ -53,6 +60,13 @@ if /i "%TARGET%"=="test" (
 
     echo [RUN] Executing parser test runner...
     bin\test_parser.exe
+    if !ERRORLEVEL! neq 0 (
+        echo [FAIL] Parser test suite failed.
+        exit /b 1
+    )
+
+    echo [RUN] Executing dynamic array test runner...
+    bin\test_array_store.exe
     exit /b !ERRORLEVEL!
 )
 
@@ -67,7 +81,7 @@ if /i "%TARGET%"=="all" (
         )
         echo [INFO] Application built successfully: bin\logwatch.exe
     ) else (
-        echo [INFO] Milestone 2 active (Data Model & Parser implemented). Core CLI application deferred to Milestone 6.
+        echo [INFO] Milestone 3 active (Data Model, Parser, and Dynamic Array implemented). Core CLI application deferred to Milestone 6.
     )
     exit /b 0
 )

@@ -320,11 +320,12 @@ flowchart TD
 - Create `tests/test_parser.c`.
 - **Verification**: All 20 parser test cases pass (76 assertions, covering valid rows, malformed rows, blank lines, boundary values, overlong line consumption, EOF handling, and null safety).
 
-### Milestone 3: Dynamic Array Storage (`LogArray`)
-- Implement `include/array_store.h` and `src/array_store.c`.
-- Implement capacity growth doubling, memory reallocation, array cloning, and cleanup.
+### Milestone 3: Dynamic Array Storage (`LogArray`) (Completed & Verified)
+- Implement `include/log_array.h` (with `include/array_store.h` compatibility alias) and `src/log_array.c`.
+- Implement capacity growth doubling, safe memory reallocation, array cloning, indexed access, and cleanup.
 - Create `tests/test_array_store.c`.
-- **Verification**: Zero memory leaks under dynamic resizing from 16 to 1024+ elements.
+- **Verification**: All 10 dynamic array test cases pass (1,145 assertions, covering initialization, growth to 1024 elements, boundary indexed access, clearing, repeated free, cloning, aliasing safety, and parser stream ingestion).
+
 
 ### Milestone 4: Baseline Sorting & Record Integrity
 - Implement `include/sort.h` and `src/sort.c`.

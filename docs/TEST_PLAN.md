@@ -58,13 +58,13 @@ All test files are stored in `tests/fixtures/` and explicitly tagged `[SYNTHETIC
 
 | ID | Description | Input / Condition | Expected Output | Status |
 |---|---|---|---|---|
-| **A-01** | Initialize array | `initial_capacity = 16` | `size == 0`, `capacity == 16`, `entries != NULL` | DRAFT |
-| **A-02** | Append single record | Valid `LogEntry` | `size == 1`, `entries[0]` matches entry | DRAFT |
-| **A-03** | Dynamic capacity growth | Append 17 items into capacity 16 | `size == 17`, `capacity == 32`, zero memory corruption | DRAFT |
-| **A-04** | Large append sequence | Append 1000 items | `size == 1000`, `capacity >= 1000`, all elements accessible | DRAFT |
-| **A-05** | Clone array | Source array with 5 records | Cloned array has identical records, distinct heap pointers | DRAFT |
-| **A-06** | Free array | Allocated `LogArray` | Heap block freed, pointer reset to `NULL`, `size == 0` | DRAFT |
-| **A-07** | Clone empty array | Source array with 0 records | Cloned array initialized with 0 size, valid state | DRAFT |
+| **A-01** | Initialize array | `initial_capacity = 16` | `size == 0`, `capacity == 16`, `entries != NULL` | PASS |
+| **A-02** | Append single record | Valid `LogEntry` | `size == 1`, `entries[0]` matches entry | PASS |
+| **A-03** | Dynamic capacity growth | Append 17 items into capacity 16 | `size == 17`, `capacity == 32`, zero memory corruption | PASS |
+| **A-04** | Large append sequence | Append 1000 items | `size == 1000`, `capacity >= 1000`, all elements accessible | PASS |
+| **A-05** | Clone array | Source array with 5 records | Cloned array has identical records, distinct heap pointers | PASS |
+| **A-06** | Free array | Allocated `LogArray` | Heap block freed, pointer reset to `NULL`, `size == 0` | PASS |
+| **A-07** | Clone empty array | Source array with 0 records | Cloned array initialized with 0 size, valid state | PASS |
 
 ### 3.3 Sorting & Record Integrity Test Suite (`test_sort.c`)
 

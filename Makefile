@@ -19,6 +19,7 @@ endif
 TARGET = $(BIN_DIR)/logwatch$(EXE)
 TEST_DUMMY = $(BIN_DIR)/test_dummy$(EXE)
 TEST_PARSER = $(BIN_DIR)/test_parser$(EXE)
+TEST_ARRAY = $(BIN_DIR)/test_array_store$(EXE)
 
 .PHONY: all test clean directories
 
@@ -30,16 +31,20 @@ directories:
 $(TARGET): $(wildcard $(SRC_DIR)/*.c) | directories
 	@if exist $(SRC_DIR)\main.c ( $(CC) $(CFLAGS) $(SRC_DIR)/*.c -o $(TARGET) ) else ( echo [INFO] Core CLI application deferred to Milestone 6. )
 
-test: directories $(TEST_DUMMY) $(TEST_PARSER)
+test: directories $(TEST_DUMMY) $(TEST_PARSER) $(TEST_ARRAY)
 	@echo [RUN] Executing test suites...
 	@$(TEST_DUMMY)
 	@$(TEST_PARSER)
+	@$(TEST_ARRAY)
 
 $(TEST_DUMMY): $(TEST_DIR)/test_dummy.c $(TEST_DIR)/test_utils.h | directories
 	$(CC) $(CFLAGS) $(TEST_DIR)/test_dummy.c -o $(TEST_DUMMY)
 
 $(TEST_PARSER): $(TEST_DIR)/test_parser.c $(SRC_DIR)/log_entry.c $(SRC_DIR)/parser.c $(TEST_DIR)/test_utils.h | directories
 	$(CC) $(CFLAGS) $(TEST_DIR)/test_parser.c $(SRC_DIR)/log_entry.c $(SRC_DIR)/parser.c -o $(TEST_PARSER)
+
+$(TEST_ARRAY): $(TEST_DIR)/test_array_store.c $(SRC_DIR)/log_entry.c $(SRC_DIR)/log_array.c $(SRC_DIR)/parser.c $(TEST_DIR)/test_utils.h | directories
+	$(CC) $(CFLAGS) $(TEST_DIR)/test_array_store.c $(SRC_DIR)/log_entry.c $(SRC_DIR)/log_array.c $(SRC_DIR)/parser.c -o $(TEST_ARRAY)
 
 clean:
 	@$(RM)

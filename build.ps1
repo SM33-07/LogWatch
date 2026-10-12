@@ -48,6 +48,13 @@ switch ($Target.ToLower()) {
             exit $LASTEXITCODE
         }
 
+        Write-Host "[BUILD] Compiling dynamic array test runner..."
+        & gcc $cflags "tests/test_array_store.c" "src/log_entry.c" "src/log_array.c" "src/parser.c" -o "bin/test_array_store.exe"
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "[ERROR] Dynamic array test compilation failed."
+            exit $LASTEXITCODE
+        }
+
         Write-Host "[RUN] Executing smoke test runner..."
         & "bin/test_dummy.exe"
         if ($LASTEXITCODE -ne 0) {
@@ -57,6 +64,13 @@ switch ($Target.ToLower()) {
 
         Write-Host "[RUN] Executing parser test runner..."
         & "bin/test_parser.exe"
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "[FAIL] Parser test suite failed."
+            exit $LASTEXITCODE
+        }
+
+        Write-Host "[RUN] Executing dynamic array test runner..."
+        & "bin/test_array_store.exe"
         exit $LASTEXITCODE
     }
     "all" {
@@ -71,7 +85,7 @@ switch ($Target.ToLower()) {
             }
             Write-Host "[INFO] Application built successfully: bin/logwatch.exe"
         } else {
-            Write-Host "[INFO] Milestone 2 active (Data Model & Parser implemented). Core CLI application deferred to Milestone 6."
+            Write-Host "[INFO] Milestone 3 active (Data Model, Parser, and Dynamic Array implemented). Core CLI application deferred to Milestone 6."
         }
         exit 0
     }
