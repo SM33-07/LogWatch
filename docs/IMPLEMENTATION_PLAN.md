@@ -327,32 +327,98 @@ flowchart TD
 - **Verification**: All 10 dynamic array test cases pass (1,145 assertions, covering initialization, growth to 1024 elements, boundary indexed access, clearing, repeated free, cloning, aliasing safety, and parser stream ingestion).
 
 
-### Milestone 4: Baseline Sorting & Record Integrity
+### Milestone 4: Baseline Sorting & Record Integrity (Completed & Verified)
 - Implement `include/sort.h` and `src/sort.c`.
-- Implement Bubble Sort (with early exit), Selection Sort, and Insertion Sort moving complete `LogEntry` records.
-- Track comparisons and moves in `SortMetrics`.
-- Implement stable tie-breaking on `source_line`.
-- Create `tests/test_sort.c` including explicit Record Integrity assertions.
-- **Verification**: Sorted order confirmed on empty, 1-element, sorted, reverse, and duplicate datasets; record integrity confirmed across all records.
+- Implement Bubble Sort (with early exit), Selection Sort (avoiding unnecessary self-swaps), and Insertion Sort (using complete record shifts).
+- Track comparisons, record_swaps, record_shifts, and elapsed_sec in `SortMetrics`.
+- Implement stable tie-breaking on ascending `source_line` for all algorithms and both sort directions.
+- Support all documented sort keys: timestamp, route, status code, response time, and client ID.
+- Create `tests/test_sort.c` including explicit Record Integrity assertions, boundary conditions, and large synthetic dataset benchmarks.
+- **Verification**: All 10 sorting test cases pass (630 assertions, covering empty/single arrays, record integrity across all fields, bubble early exit, selection self-swap avoidance, insertion shift accounting, duplicate keys with tie-breaking, and all keys in both directions).
 
-### Milestone 5: Linear Search Engine
+### Milestone 5: Linear Search Engine (Completed & Verified)
 - Implement `include/search.h` and `src/search.c`.
-- Support searching by `response_time_ms`, `status_code`, and `route` substring.
-- Track comparisons and matches in `SearchMetrics`.
+- Support 4 search capabilities: exact response time, response-time threshold (`>= threshold`), exact status code, and route substring/prefix search (with case options).
+- Track comparisons, matches_found, and elapsed_sec in `SearchMetrics`.
+- Ensure multi-match retrieval preserving original array order without mutations.
+- Implement safe caller buffer capacity management (zero-capacity, insufficient-capacity overflow protection).
 - Create `tests/test_search.c`.
-- **Verification**: Linear search returns all duplicate matches and correctly handles not-found queries.
+- **Verification**: All 10 search test cases pass (131 assertions, covering exact matches, threshold boundaries, multiple matches, prefix/substring/case rules, buffer capacity bounds, empty/single arrays, and large sample invariants).
 
-### Milestone 6: Interactive Menu-Driven CLI
-- Implement `include/cli.h` and `src/cli.c`.
-- Provide interactive menu loop, pagination, sorting comparisons, search queries, and DSA complexity display.
-- Prominently display `[SYNTHETIC DATA]` provenance badge.
-- Implement `src/main.c` supporting both command-line file arguments and interactive path input.
-- **Verification**: Manual CLI walk-through and non-interactive input pipe testing.
+### Milestone 6: Interactive Menu-Driven CLI & Analytics (Completed & Verified)
+- Implement `include/cli.h` and `src/cli.c` with clear 8-option menu, safe bounded input parsing, error recovery, and clean EOF termination.
+- Implement `src/main.c` supporting initial file command-line arguments and interactive fallback.
+- Implement dataset preservation upon failed replacement file loads.
+- Prominently display `[SYNTHETIC DATA]` provenance badge across all tables, summaries, and reports.
+- Create automated test suite `tests/test_cli.c`.
+- **Verification**: All 7 CLI test cases pass (74 assertions, covering empty states, file loading/preservation, sorting execution, search execution, happy path scripted stream run, invalid input recovery, and EOF handling).
 
-### Milestone 7: Integration, Memory Safety & Acceptance Sign-off
-- Run complete test suite (`make test` or `build.bat test`).
-- Verify zero memory leaks and clean compilation with `-Wall -Wextra -pedantic -std=c11`.
-- Update `docs/VIVA_GUIDE.md` with demonstration scripts and viva Q&A.
+### Milestone 7: Integration, Memory Safety & Acceptance Sign-off (Completed & Verified)
+- Comprehensive cross-module audit across all public interfaces and ownership contracts.
+- Memory safety, allocation overflow, invalid index, and aliasing hardening (`search_populate_results` atomic index check and safe aliasing).
+- Executable-level acceptance test suite `tests/test_cli_executable.c` verifying process startup, CLI arguments, interactive workflows, error recovery, EOF resilience, and synthetic data disclosure across all fixtures.
+- Integrated `test_cli_executable` into `Makefile`, `build.bat`, and `build.ps1`.
+- Clean compilation and 100% test passing across all 3 build environments (CMD, PowerShell, GNU Make).
+- **Verification**: 7 test suites, 69 test cases, 2,142 assertions run with 0 failures, 0 memory leaks, and 0 warnings under `-std=c11 -Wall -Wextra -pedantic`.
+
+### Milestone 8: Graphical Web Frontend Architecture & Implementation Roadmap (Active)
+
+Milestone 8 strictly enforces a **clone-and-run setup** ensuring that standard users and evaluators can clone the repository and run the web application using only Git and Node.js without needing Emscripten or a native C compiler, while contributors maintain a rigorous C-to-WASM recompilation workflow.
+
+#### Core Clone-and-Run Constraints Across All Milestone 8 Tasks:
+1. **Normal User Workflow**:
+   - A fresh clone runs using standard Git, Node.js 20.9 or later, and npm.
+   - `web/package-lock.json` is committed to version control for deterministic dependency installation.
+   - Pre-compiled WebAssembly JavaScript loader (`logwatch_wasm.js`) and binary (`logwatch_wasm.wasm`) are committed under `web/public/wasm/`.
+   - `.gitignore` explicitly permits these runtime assets (`!web/public/wasm/`, `!web/public/wasm/*`).
+   - `npm ci` followed by `npm run dev` inside `web/` must work out of the box without Emscripten (`emcc`) or a native C compiler (`gcc`).
+   - Explicit runtime guard: If required WebAssembly assets are missing, the runtime throws a clear, descriptive error banner.
+   - **Zero JavaScript Substitution Policy**: Under no circumstances does LogWatch silently substitute JavaScript implementations of the C algorithms. If the C WebAssembly engine fails to initialize, execution halts with an explicit error.
+2. **Contributor Workflow**:
+   - Provide a separate `npm run build:wasm` command requiring the Emscripten SDK (`emcc`).
+   - Provide a separate `npm run test:wasm` command that exercises the actual C bridge in Node.js.
+   - Whenever C algorithms (`src/sort.c`, `src/search.c`, `src/log_array.c`, `src/parser.c`) or bridge code (`src/wasm_bridge.c`) are modified, contributors regenerate and commit the WebAssembly assets under `web/public/wasm/`.
+   - Keep existing native C build and test workflows (`build.ps1`, `build.bat`, `Makefile`) completely independent.
+
+---
+
+#### Milestone 8A: Frontend Architecture Assessment (Completed & Approved)
+- Conducted technical feasibility study evaluating three bridging topologies: in-browser WebAssembly (Emscripten), server-side native child process spawning, and local C micro-daemon.
+- Selected **Option 1: In-Browser WebAssembly (WASM)** with pre-compiled committed assets to guarantee 100% algorithmic fidelity, zero backend dependency, and clone-and-run operation.
+- Defined the C bridge interface (`wasm_bridge.h` / `wasm_bridge.c`), memory ownership contract, and hybrid JSON serialization strategy.
+- Designed Next.js (App Router) + TypeScript + Tailwind CSS dark developer-tool design system with restrained violet/purple accents and mandatory `[SYNTHETIC]` provenance badges.
+- Formulated architectural decisions **D-20** through **D-23** and generated `docs/FRONTEND_ARCHITECTURE.md`.
+
+#### Milestone 8B: C WebAssembly Bridge & Clone-and-Run Pipeline (Completed & Verified)
+- Implemented `include/wasm_bridge.h` and `src/wasm_bridge.c` adhering strictly to ISO C11 with zero algorithmic duplication.
+- Exposed lifecycle, VFS file loading, ingestion statistics, paginated record retrieval, sorting, non-destructive comparison benchmark, and linear search.
+- Implemented RFC 8259 JSON serialization with comprehensive escaping and explicit pointer deallocation via `bridge_free_string()`.
+- Implemented dataset preservation invariant upon failed replacement file loads.
+- Configured compilation pipeline in `web/scripts/build_wasm.js` (`npm run build:wasm`) generating committed runtime assets into `web/public/wasm/` (and syncing to `web/lib/wasm/`).
+- Committed `web/package-lock.json` and ensured `.gitignore` tracks `web/public/wasm/`.
+- Implemented strongly typed `web/lib/wasm/bridge_client.ts` with explicit missing-WASM asset detection and strict zero-JS-fallback enforcement.
+- Created automated Node.js integration test suite `tests/test_wasm_bridge.js` (`npm run test:wasm`), verifying all 12 bridge contracts (187 assertions, 100% pass rate).
+- Verified full workflow in an isolated clean checkout: `npm ci`, `npm run build`, `npm run test:wasm`, and missing-asset guard execution.
+- Maintained complete independence of native C build and test scripts (`build.ps1`, `build.bat`, `Makefile`).
+
+#### Milestone 8C: Next.js Frontend Foundation & Ingestion Explorer (Completed & Verified)
+- Established Next.js App Router UI atop committed WebAssembly runtime assets.
+- Ensured `npm ci` followed by `npm run dev` operates immediately in fresh clones without Emscripten or GCC.
+- Configured dark developer-tool styling tokens (zinc-950 background, purple accents, monospace numerical typography).
+- Connected `bridge_client.ts` to React state via `useLogWatch` hook.
+- Implemented clear error alert boundary if `/wasm/logwatch_wasm.wasm` fails to load (no silent JS fallback).
+- Built Ingestion Overview dashboard (KPI tiles, invariant verification badges, provenance banner).
+- Built high-density monospace Log Explorer with column previews and pagination consuming `bridge_get_records_json`.
+
+#### Milestone 8D: Sorting/Searching Controls & Minimal Algorithm Lab (Completed & Verified)
+- Implemented compact interactive Algorithm Lab replacing initial placeholder (`web/components/AlgorithmLab.tsx`).
+- Interactive sorting controls (Bubble, Selection, Insertion) across all 5 keys (Timestamp, Route, Status Code, Response Time, Client ID) in Ascending/Descending order, dispatching exclusively to `bridge_sort`.
+- Multi-match linear search controls (exact response time, threshold, status, route prefix, route substring) dispatching exclusively to `bridge_search_*`, displaying matches in source order with exact comparison counters.
+- Non-destructive 3-way algorithm comparison benchmark: executes all three sorts on identical cloned inputs via `bridge_compare_all_sorts` (`log_array_clone`), rendering metrics cards (`comparisons`, `swaps`, `shifts`, `elapsed_sec`) and horizontal comparison bars.
+- Preserved complete record integrity and deterministic `source_line` tie-breakers across all operations.
+- Enforced ubiquitous `[SYNTHETIC]` provenance disclosures across all tables, cards, headers, and reports.
+- Zero TypeScript/JavaScript algorithm fallbacks; pure C11 WebAssembly engine.
+- Verified in browser and through full test suites (81 tests, 2,329 assertions: 69 native tests / 2,142 assertions + 12 WASM tests / 187 assertions).
 
 ---
 
@@ -366,6 +432,7 @@ flowchart TD
 | **Complexity Analysis** | 1. `SortMetrics.comparisons` and `moves` match theoretical operation expectations.<br/>2. Bubble Sort best-case on sorted input exits after $n-1$ comparisons.<br/>3. Selection Sort performs $n(n-1)/2$ comparisons regardless of input order.<br/>4. Insertion Sort best-case performs $n-1$ comparisons and 0 moves.<br/>5. Side-by-side comparison uses cloned arrays so all sorts run on identical raw data. | `test_sort.c` metrics assertions |
 | **Error Handling** | 1. Invalid file path reports clean error message without crash.<br/>2. Invalid menu selection reprompts user without infinite loop.<br/>3. EOF or SIGINT during menu input exits cleanly. | CLI integration tests |
 | **Memory Safety** | 1. Every dynamic allocation is freed upon program completion.<br/>2. Zero memory leaks and zero invalid pointer reads.<br/>3. Clean compilation with `-Wall -Wextra -pedantic -std=c11`. | AddressSanitizer / Valgrind checks |
+| **Web Frontend (Clone-and-Run)** | 1. Fresh clone runs with Git, Node.js $\ge$ 20.9, and npm via `npm ci` and `npm run dev` without Emscripten or GCC.<br/>2. Committed `web/public/wasm/` runtime assets load directly into browser memory.<br/>3. Missing WebAssembly assets throw explicit fatal errors; zero fallback to JavaScript algorithm implementations.<br/>4. Contributor commands (`npm run build:wasm`, `npm run test:wasm`) exercise the C WebAssembly bridge with 100% pass rate.<br/>5. Native C11 build and test suites remain independent. | Clean isolated checkout verification, `tests/test_wasm_bridge.js` |
 
 ---
 
