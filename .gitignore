@@ -15,3 +15,15 @@ bin/
 *~
 .DS_Store
 Thumbs.db
+
+# Node.js and Next.js artifacts
+node_modules/
+.next/
+web/node_modules/
+web/.next/
+web/out/
+web/AGENTS.md
+
+# Explicitly track required WebAssembly runtime assets
+!web/public/wasm/
+!web/public/wasm/*

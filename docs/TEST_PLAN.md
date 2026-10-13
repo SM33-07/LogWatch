@@ -70,46 +70,84 @@ All test files are stored in `tests/fixtures/` and explicitly tagged `[SYNTHETIC
 
 | ID | Description | Input / Condition | Expected Output | Status |
 |---|---|---|---|---|
-| **S-01** | Bubble Sort correctness | Unsorted `synthetic_valid.log` by response time | Records in non-decreasing order: 18, 42, 95, 310, 1200 | DRAFT |
-| **S-02** | Selection Sort correctness | Unsorted `synthetic_valid.log` by response time | Records in non-decreasing order: 18, 42, 95, 310, 1200 | DRAFT |
-| **S-03** | Insertion Sort correctness | Unsorted `synthetic_valid.log` by response time | Records in non-decreasing order: 18, 42, 95, 310, 1200 | DRAFT |
-| **S-04** | **Record Integrity Check (Bubble)** | Sort `synthetic_valid.log` by response time | For record 18: `route == "/api/auth/login"`, `status == 401`, `client == "client-C"`. Association strictly preserved! | DRAFT |
-| **S-05** | **Record Integrity Check (Select)** | Sort `synthetic_valid.log` by response time | Complete struct fields match source record for every item | DRAFT |
-| **S-06** | **Record Integrity Check (Insert)** | Sort `synthetic_valid.log` by response time | Complete struct fields match source record for every item | DRAFT |
-| **S-07** | Empty array boundary | Array with 0 records | Sort completes safely without null dereference | DRAFT |
-| **S-08** | Single element boundary | Array with 1 record | Sort completes safely, record unchanged | DRAFT |
-| **S-09** | Already-sorted array | 5 sorted records | Array remains sorted; Bubble Sort exits in 1 pass ($n-1$ comparisons) | DRAFT |
-| **S-10** | Reverse-sorted array | 5 reverse-sorted records | Array correctly sorted in ascending order | DRAFT |
-| **S-11** | Duplicate keys handling | `synthetic_duplicates.log` (100, 100, 200, 100, 200) | Sorted: 100, 100, 100, 200, 200. Zero records lost. Stable tie-break by `source_line`. | DRAFT |
-| **S-12** | Sort by HTTP Status Code | `synthetic_valid.log` by status | Sorted: 200, 200, 401, 500, 503 | DRAFT |
-| **S-13** | Sort by Timestamp | `synthetic_valid.log` by timestamp | Chronological order maintained | DRAFT |
-| **S-14** | Descending sort order | `synthetic_valid.log`, `ascending = false` | Sorted in non-increasing order: 1200, 310, 95, 42, 18 | DRAFT |
-| **S-15** | Selection Sort moves count | Array of size $n$ | `SortMetrics.moves <= n - 1` ($O(n)$ swaps) | DRAFT |
-| **S-16** | Insertion Sort best-case moves | Already-sorted array of size $n$ | `SortMetrics.moves == 0`, `comparisons == n - 1` | DRAFT |
-| **S-17** | Non-destructive comparison | Run Bubble, Selection, and Insertion Sort on clones of same array | All 3 sorts produce identical ordered output from fresh copies | DRAFT |
+| **S-01** | Bubble Sort correctness | Unsorted `synthetic_valid.log` by response time | Records in non-decreasing order: 18, 42, 95, 310, 1200 | PASS |
+| **S-02** | Selection Sort correctness | Unsorted `synthetic_valid.log` by response time | Records in non-decreasing order: 18, 42, 95, 310, 1200 | PASS |
+| **S-03** | Insertion Sort correctness | Unsorted `synthetic_valid.log` by response time | Records in non-decreasing order: 18, 42, 95, 310, 1200 | PASS |
+| **S-04** | **Record Integrity Check (Bubble)** | Sort `synthetic_valid.log` by response time | For record 18: `route == "/api/auth/login"`, `status == 401`, `client == "client-C"`. Association strictly preserved! | PASS |
+| **S-05** | **Record Integrity Check (Select)** | Sort `synthetic_valid.log` by response time | Complete struct fields match source record for every item | PASS |
+| **S-06** | **Record Integrity Check (Insert)** | Sort `synthetic_valid.log` by response time | Complete struct fields match source record for every item | PASS |
+| **S-07** | Empty array boundary | Array with 0 records | Sort completes safely without null dereference | PASS |
+| **S-08** | Single element boundary | Array with 1 record | Sort completes safely, record unchanged | PASS |
+| **S-09** | Already-sorted array | 5 sorted records | Array remains sorted; Bubble Sort exits in 1 pass ($n-1$ comparisons, 0 swaps) | PASS |
+| **S-10** | Reverse-sorted array | 5 reverse-sorted records | Array correctly sorted in ascending order | PASS |
+| **S-11** | Duplicate keys handling | `synthetic_duplicates.log` (100, 100, 200, 100, 200) | Sorted: 100, 100, 100, 200, 200. Zero records lost. Stable tie-break by `source_line`. | PASS |
+| **S-12** | Sort by HTTP Status Code | `synthetic_valid.log` by status | Sorted: 200, 200, 401, 500, 503 | PASS |
+| **S-13** | Sort by Timestamp | `synthetic_valid.log` by timestamp | Chronological order maintained | PASS |
+| **S-14** | Descending sort order | `synthetic_valid.log`, `ascending = false` | Sorted in non-increasing order: 1200, 310, 95, 42, 18 | PASS |
+| **S-15** | Selection Sort moves count | Array of size $n$ | `SortMetrics.record_swaps <= n - 1` ($O(n)$ swaps; 0 on sorted) | PASS |
+| **S-16** | Insertion Sort best-case moves | Already-sorted array of size $n$ | `SortMetrics.record_shifts == 0`, `comparisons == n - 1` | PASS |
+| **S-17** | Non-destructive comparison | Run Bubble, Selection, and Insertion Sort on clones of same array | All 3 sorts produce identical ordered output from fresh copies | PASS |
 
 ### 3.4 Linear Search Test Suite (`test_search.c`)
 
 | ID | Description | Input / Condition | Expected Output | Status |
 |---|---|---|---|---|
-| **L-01** | Search exact response time (single match) | Target: 95ms in `synthetic_valid.log` | `matches == 1`, index points to `/api/snippets/42` | DRAFT |
-| **L-02** | Search exact response time (multi match) | Target: 100ms in `synthetic_duplicates.log` | `matches == 3`, indices point to lines 1, 2, 4 | DRAFT |
-| **L-03** | Search response time not found | Target: 9999ms | `matches == 0`, `out_indices == NULL` | DRAFT |
-| **L-04** | Search by status code | Target: 500 in `synthetic_valid.log` | `matches == 1`, `/api/snippets` 500 found | DRAFT |
-| **L-05** | Search by route prefix/substring | Target: `"/snippets"` | `matches == 3`, all matching route records returned | DRAFT |
-| **L-06** | Search empty array | Array with 0 records | `matches == 0`, safe return | DRAFT |
-| **L-07** | Search metrics comparison count | Unsorted array of $n$ elements | `SearchMetrics.comparisons == n` (full linear scan) | DRAFT |
+| **L-01** | Search exact response time (single match) | Target: 95ms in `synthetic_valid.log` | `matches == 1`, index points to `/api/snippets/42` | PASS |
+| **L-02** | Search exact response time (multi match) | Target: 100ms in `synthetic_duplicates.log` | `matches == 3`, indices point to lines 1, 2, 4 | PASS |
+| **L-03** | Search response time not found | Target: 9999ms | `matches == 0`, buffer untouched | PASS |
+| **L-04** | Search by status code | Target: 500 in `synthetic_valid.log` | `matches == 1`, `/api/snippets` 500 found | PASS |
+| **L-05** | Search by route prefix/substring | Target: `"/snippets"` | `matches == 3`, all matching route records returned | PASS |
+| **L-06** | Search empty array | Array with 0 records | `matches == 0`, safe return | PASS |
+| **L-07** | Search metrics comparison count | Unsorted array of $n$ elements | `SearchMetrics.comparisons == n` (full linear scan) | PASS |
 
 ### 3.5 Memory Safety and System Resilience
 
 | ID | Description | Tool / Condition | Expected Output | Status |
 |---|---|---|---|---|
-| **M-01** | Parser memory cleanup | Valgrind / ASan on parsing fixtures | Zero memory leaks, zero errors | DRAFT |
-| **M-02** | Array growth & clone cleanup | Valgrind / ASan on `test_array_store` | Zero memory leaks, zero errors | DRAFT |
-| **M-03** | Sorting memory cleanup | Valgrind / ASan on `test_sort` | Zero memory leaks, zero errors | DRAFT |
-| **M-04** | Search results allocation free | Valgrind / ASan on `test_search` | Caller frees `out_indices`; zero leaks | DRAFT |
-| **C-01** | CLI invalid menu input | Enter characters (`"abc"`, `"-1"`, `"99"`) | Re-prompts menu gracefully; zero crashes | DRAFT |
-| **C-02** | CLI EOF handling | Feed EOF to menu prompt | Exits cleanly with return code 0 | DRAFT |
+| **M-01** | Parser memory cleanup | Defensive code audit & `test_parser` fixture execution | `parse_stats_free` safe on NULL/populated stats; zero leaks, zero errors | PASS |
+| **M-02** | Array growth & clone cleanup | Boundary testing & `test_array_store` execution | Capacity growth overflow safety, double-free safety, `log_array_free` safely clears buffer; zero leaks | PASS |
+| **M-03** | Sorting memory cleanup | Record integrity audit & `test_sort` clone tests | `log_array_clone` paired with `log_array_free`; stack-allocated swap buffers; zero heap leakage | PASS |
+| **M-04** | Search results allocation free | Aliasing and caller buffer audit in `test_search` | Callers manage target buffers safely; `search_populate_results` validates indices atomically and prevents aliasing corruption; zero leaks | PASS |
+
+### 3.6 CLI Unit & Stream Test Suite (`test_cli.c`)
+
+| ID | Description | Input / Condition | Expected Output | Status |
+|---|---|---|---|---|
+| **C-01** | CLI invalid menu input | Enter non-numeric string (`"abc"`, `"-1"`, `"99"`) | Re-prompts menu gracefully; zero crashes | PASS |
+| **C-02** | CLI EOF handling | Feed EOF (`""`) to menu prompt | Exits cleanly with return code 0 | PASS |
+| **C-03** | CLI state lifecycle | Initialize and free empty CLI state | State correctly tracks file status; clean memory free | PASS |
+| **C-04** | CLI file loading & dataset preservation | Attempt load of invalid file after valid load | Rejects bad file, preserves previous valid dataset and stats | PASS |
+| **C-05** | CLI sorting interactive flow | Execute sort option via simulated input stream | Sorts array, updates `SortMetrics`, displays summary | PASS |
+| **C-06** | CLI searching interactive flow | Execute search option via simulated input stream | Finds matching records, updates `SearchMetrics`, displays matches | PASS |
+| **C-07** | Scripted happy-path session | Full pipeline: load, preview, sort, search, metrics, stats, exit | Returns code 0; all reports display `[SYNTHETIC]` badge | PASS |
+
+### 3.7 Executable-Level Acceptance Suite (`test_cli_executable.c`)
+
+| ID | Description | Execution Method | Expected Output | Status |
+|---|---|---|---|---|
+| **E-01** | Process startup & clean exit | Launch `bin/logwatch.exe` via OS process, send `"8\n"` | Process exit code 0 | PASS |
+| **E-02** | Process startup with file argument | Launch `bin/logwatch.exe tests\fixtures\synthetic_valid.log`, send `"8\n"` | Loads file on startup, process exit code 0 | PASS |
+| **E-03** | Complete interactive workflow | Pipe full menu flow (load, preview, sort, search, metrics, stats, reload, exit) | Full stdout generation, process exit code 0 | PASS |
+| **E-04** | Error recovery on invalid choices & files | Feed invalid inputs, blank lines, missing file paths, then valid file | Recovers gracefully without hanging or crash; exit code 0 | PASS |
+| **E-05** | Immediate EOF on stdin | Pipe empty stdin stream (`""`) to process | Exits cleanly without hang; exit code 0 | PASS |
+| **E-06** | EOF during sub-prompt | Pipe `"1\n"` followed by immediate EOF | Exits cleanly without hang; exit code 0 | PASS |
+
+### 3.8 WebAssembly Bridge Integration Suite (`test_wasm_bridge.js`)
+
+| ID | Description | Input / Execution | Expected Output | Status |
+|---|---|---|---|---|
+| **W-01** | Lifecycle and cleanup | `bridge_init`, `bridge_clear`, `bridge_free` | State safely initialized and released, repeated cleanup safe | PASS |
+| **W-02** | Virtual filesystem fixture loading | `bridge_load_from_vfs('/synthetic_valid.log')` | Loads 5 records through Emscripten MEMFS | PASS |
+| **W-03** | Ingestion invariant accounting | Valid, malformed (6 malf), and blanks (3 blanks) | `total_lines == valid + malformed + blank` verified across all fixtures | PASS |
+| **W-04** | Paginated record retrieval | `bridge_get_records_json(offset, limit)` | Correct bounds, limit, offset, and RFC 8259 JSON serialization | PASS |
+| **W-05** | Sorting algorithms correctness | Bubble, Selection, Insertion on `synthetic_valid.log` | Non-decreasing order: 18, 42, 95, 310, 1200; descending order verified | PASS |
+| **W-06** | Record integrity & tie-breaking | `synthetic_duplicates.log` sorted ascending and descending | Identical times tie-broken by ascending `source_line`; all struct fields bound | PASS |
+| **W-07** | Linear search queries | Exact, threshold, status, prefix, substring, case-insensitive | Exact record matches returned with `matches_found` and record payload | PASS |
+| **W-08** | Deterministic metrics verification | Pre-sorted data sort and selection sort | Bubble best-case 4 comparisons; Selection exactly 10 comparisons | PASS |
+| **W-09** | Non-destructive comparison benchmark | `bridge_compare_all_sorts` on cloned arrays | 3 algorithms benchmarked; active dataset preserved completely unmodified | PASS |
+| **W-10** | Error handling & dataset preservation | Failed load of `/does_not_exist.log`, invalid params | Fails cleanly; pre-existing loaded dataset preserved without corruption | PASS |
+| **W-11** | JSON escaping & memory ownership | Special characters (`"`, `\`, control chars) | Clean JSON parse; explicit pointer release via `bridge_free_string` | PASS |
+| **W-12** | Native baseline consistency | `samples/synthetic_access.log` (50 records) | Exact match with native C11 expectations (Selection Sort = 1225 comparisons) | PASS |
 
 ---
 

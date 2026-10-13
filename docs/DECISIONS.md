@@ -29,6 +29,11 @@
 | **D-17** | Operation-Count Metrics Architecture | ACCEPTED | Core M4, M5 |
 | **D-18** | Non-Destructive Sort Comparison via Cloned Arrays | ACCEPTED | Core M4, M6 |
 | **D-19** | Authoritative Syllabus Classification Protocol | ACCEPTED | All |
+| **D-20** | Frontend Bridge: In-Browser WebAssembly (WASM) | ACCEPTED | Milestone 8 |
+| **D-21** | C Bridge Serialization & Memory Ownership | ACCEPTED | Milestone 8 |
+| **D-22** | Frontend Theme: Dark UI with Violet/Purple Accents | ACCEPTED | Milestone 8 |
+| **D-23** | Graphical Synthetic Provenance Disclosure Mandate | ACCEPTED | Milestone 8 |
+| **D-24** | Clone-and-Run Setup & Pre-committed WebAssembly Assets | ACCEPTED | Milestone 8 |
 
 ---
 
@@ -131,3 +136,37 @@
   2. **Not Yet Covered (Deferred)**: Divide-and-conquer binary search, Merge Sort, Quick Sort, recurrence-solving methods.
   3. **Optional (Extension)**: Linked lists, stacks, queues, recursion demos, BST, AVL, heaps, hashing, graphs.
 - **Rationale**: Strictly respects the course syllabus and teacher lecture progression.
+
+### D-20 — Frontend Bridge: In-Browser WebAssembly (WASM)
+- **Status**: ACCEPTED
+- **Decision**: The browser frontend will integrate with the authoritative C11 engine by compiling the C11 source files to WebAssembly (WASM) via Emscripten (`emcc`). Server-side native process spawning (`child_process`) is retained only as an optional local development fallback.
+- **Rationale**:
+  1. **Algorithmic Fidelity**: Compiling authentic C11 source directly guarantees 100% fidelity with the native CLI and test suites—preserving all comparisons, swaps, shifts, and tie-breaking invariants.
+  2. **Serverless Deployment**: WebAssembly allows static hosting on platforms like Vercel, Netlify, or GitHub Pages without requiring a backend server with GCC/MinGW.
+  3. **Zero-Latency Interaction**: Direct in-memory operations in the browser sandbox enable instantaneous search-as-you-type and live sorting feedback.
+
+### D-21 — C Bridge Serialization & Memory Ownership Protocol
+- **Status**: ACCEPTED
+- **Decision**: Introduce a dedicated bridge translation unit (`wasm_bridge.c`) that exposes C functions to JavaScript. Metadata, metrics, and paginated records will be exchanged via JSON strings, while the C runtime retains exclusive ownership of the `LogArray` heap memory.
+- **Rationale**:
+  1. **Memory Safety**: Prevents memory leaks and double-free bugs across the JS/WASM boundary by maintaining strict single-owner semantics in C.
+  2. **ABI Resilience**: JSON string exchange isolates TypeScript UI components from C struct padding or alignment details, while remaining fast (<0.1ms for lab datasets $\le 10,000$ records).
+
+### D-22 — Frontend Theme: Dark UI with Violet/Purple Accents
+- **Status**: ACCEPTED
+- **Decision**: The LogWatch web interface will employ a dark developer-tool design system based on Next.js, TypeScript, and Tailwind CSS. The palette uses deep zinc/neutral dark tones (`#09090b`, `#18181b`) accented with restrained purple/violet highlights (`#9333ea`, `#a855f7`) and monospace numeric data display.
+- **Rationale**: Projects a modern, high-precision observability tool aesthetic (resembling Datadog, Grafana, and Xcode Instruments) while maintaining high contrast and readability for dense log tables.
+
+### D-23 — Graphical Synthetic Provenance Disclosure Mandate
+- **Status**: ACCEPTED
+- **Decision**: Every view of the web frontend must prominently feature the `[SYNTHETIC]` data provenance disclosure in the global application header, summary cards, and exported logs.
+- **Rationale**: Extends Rule 4 and Decision D-10 to the browser presentation tier, preventing any misrepresentation of synthetic educational fixtures as live CodeVault production logs.
+
+### D-24 — Clone-and-Run Web Frontend Setup & Pre-committed WebAssembly Assets
+- **Status**: ACCEPTED
+- **Decision**: To enable a frictionless "clone-and-run" experience, the compiled WebAssembly assets (`web/public/wasm/logwatch_wasm.js` and `web/public/wasm/logwatch_wasm.wasm`) and `web/package-lock.json` are committed directly to the repository.
+- **Rules**:
+  1. **Standard End-User Workflow**: Evaluators and frontend developers clone the repository and run `npm ci` followed by `npm run dev` inside `web/` requiring only Git, Node.js (>= 20.9), and npm. Zero C toolchains or Emscripten SDK installations are required.
+  2. **Contributor Workflow**: Contributors who modify C source files (`src/wasm_bridge.c`, `include/wasm_bridge.h`, or core DSA modules) must have Emscripten installed (`C:\emsdk`), recompile WASM assets via `npm run build:wasm`, run `npm run test:wasm`, and commit the updated `web/public/wasm/` assets.
+  3. **Missing WASM Guard**: If WebAssembly assets are missing, the runtime must throw an explicit error directing users to run `npm run build:wasm`. Under no circumstances will JavaScript implementations of the C algorithms be silently substituted.
+  4. **Native Independence**: The native C11 CLI and test workflows (`make`, `build.bat`, `build.ps1`) remain 100% decoupled and runnable without Node.js or Emscripten.
